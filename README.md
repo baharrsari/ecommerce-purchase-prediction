@@ -49,36 +49,6 @@ data/raw/
 
 ---
 
-## Nasıl Çalıştırılır
-
-**Gereksinimler**: Python 3.10+.
-
-```bash
-# Bağımlılıklar
-pip install -r requirements.txt
-
-# Phase 1 — Raw CSV → session-level parquet (~15 dk)
-python -m scripts.run_phase1
-
-# Phase 2 — Feature engineering (~3 sn)
-python -m scripts.run_phase2
-
-# Phase 3 — Binary classifier (~30 sn)
-python -m scripts.run_phase3
-
-# Phase 4 — Multi-class classifier (~50 sn)
-python -m scripts.run_phase4
-
-# Phase 5 — Evaluation plots (~15 sn)
-python -m scripts.run_phase5
-
-# (Opsiyonel) Temporal validation için side table
-python -m scripts.build_session_months
-
-# (Opsiyonel) Kapsamlı doğrulama (leakage + CV + edge cases, ~14 dk)
-python -X utf8 -m scripts.verify
-```
-
 ### Notebook'lar
 
 4 sunum notebook'u (`notebooks/` altında), çıktılar önceden embed edilmiş:
@@ -147,23 +117,6 @@ ecommerce-purchase-prediction/
 
 ---
 
-## Dependencies
-
-```
-pandas>=2.0
-numpy>=1.24
-scikit-learn>=1.3
-xgboost>=2.0
-matplotlib>=3.7
-joblib>=1.3
-pyarrow>=14.0
-jupyter
-nbformat
-nbconvert
-```
-
----
-
 ## Yazar
 
-Bahar Sarımehmetoğlu · [sarimehmetoglubahar@gmail.com](mailto:sarimehmetoglubahar@gmail.com)
+Bahar Sarımehmetoğlu

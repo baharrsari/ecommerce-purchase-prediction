@@ -1,0 +1,386 @@
+{
+  "binary": {
+    "baseline_logreg": {
+      "f1": 0.2555388325160622,
+      "roc_auc": 0.8624438693261243,
+      "precision": 0.15837989106994194,
+      "recall": 0.6610843625706511,
+      "confusion_matrix": {
+        "tn": 612108,
+        "fp": 83907,
+        "fn": 8095,
+        "tp": 15790
+      },
+      "n_test": 719900,
+      "n_test_positive": 23885
+    },
+    "primary_xgboost": {
+      "f1": 0.2966621138824036,
+      "roc_auc": 0.9403417187042517,
+      "precision": 0.17673277645059401,
+      "recall": 0.9230060707557044,
+      "confusion_matrix": {
+        "tn": 593319,
+        "fp": 102696,
+        "fn": 1839,
+        "tp": 22046
+      },
+      "n_test": 719900,
+      "n_test_positive": 23885
+    }
+  },
+  "multiclass": {
+    "labels": [
+      "accessories",
+      "apparel",
+      "appliances",
+      "furniture",
+      "stationery"
+    ],
+    "baseline_logreg": {
+      "macro_f1": 0.5560399362260581,
+      "weighted_f1": 0.617293014746473,
+      "per_class_f1": {
+        "accessories": 0.506006283496581,
+        "apparel": 0.4829421727558674,
+        "appliances": 0.7560606060606061,
+        "furniture": 0.48200395517468686,
+        "stationery": 0.5531866636425493
+      },
+      "confusion_matrix": {
+        "labels": [
+          "accessories",
+          "apparel",
+          "appliances",
+          "furniture",
+          "stationery"
+        ],
+        "matrix": [
+          [
+            1369,
+            327,
+            595,
+            33,
+            136
+          ],
+          [
+            130,
+            1996,
+            74,
+            94,
+            1513
+          ],
+          [
+            605,
+            1027,
+            8483,
+            717,
+            1073
+          ],
+          [
+            714,
+            545,
+            1344,
+            1828,
+            462
+          ],
+          [
+            133,
+            564,
+            39,
+            20,
+            2439
+          ]
+        ]
+      },
+      "classification_report": {
+        "accessories": {
+          "precision": 0.46391053880040667,
+          "recall": 0.5565040650406504,
+          "f1-score": 0.506006283496581,
+          "support": 2460.0
+        },
+        "apparel": {
+          "precision": 0.44763399865440684,
+          "recall": 0.5242973469923825,
+          "f1-score": 0.4829421727558674,
+          "support": 3807.0
+        },
+        "appliances": {
+          "precision": 0.8052206929283341,
+          "recall": 0.7125577488450231,
+          "f1-score": 0.7560606060606061,
+          "support": 11905.0
+        },
+        "furniture": {
+          "precision": 0.6790490341753344,
+          "recall": 0.3735949315348457,
+          "f1-score": 0.48200395517468686,
+          "support": 4893.0
+        },
+        "stationery": {
+          "precision": 0.43375422372399075,
+          "recall": 0.7633802816901408,
+          "f1-score": 0.5531866636425493,
+          "support": 3195.0
+        },
+        "accuracy": 0.6136709824828637,
+        "macro avg": {
+          "precision": 0.5659136976564946,
+          "recall": 0.5860668748206085,
+          "f1-score": 0.5560399362260581,
+          "support": 26260.0
+        },
+        "weighted avg": {
+          "precision": 0.6527016975116605,
+          "recall": 0.6136709824828637,
+          "f1-score": 0.617293014746473,
+          "support": 26260.0
+        }
+      },
+      "n_test": 26260
+    },
+    "primary_xgboost": {
+      "macro_f1": 0.8548232796083708,
+      "weighted_f1": 0.8779694786298468,
+      "per_class_f1": {
+        "accessories": 0.8659384309831182,
+        "apparel": 0.7515633882888004,
+        "appliances": 0.9273480061015472,
+        "furniture": 0.882793543622745,
+        "stationery": 0.8464730290456431
+      },
+      "confusion_matrix": {
+        "labels": [
+          "accessories",
+          "apparel",
+          "appliances",
+          "furniture",
+          "stationery"
+        ],
+        "matrix": [
+          [
+            2180,
+            137,
+            67,
+            39,
+            37
+          ],
+          [
+            76,
+            3305,
+            164,
+            95,
+            167
+          ],
+          [
+            204,
+            696,
+            10639,
+            226,
+            140
+          ],
+          [
+            65,
+            439,
+            130,
+            4184,
+            75
+          ],
+          [
+            50,
+            411,
+            40,
+            42,
+            2652
+          ]
+        ]
+      },
+      "classification_report": {
+        "accessories": {
+          "precision": 0.8466019417475729,
+          "recall": 0.8861788617886179,
+          "f1-score": 0.8659384309831182,
+          "support": 2460.0
+        },
+        "apparel": {
+          "precision": 0.6625902165196471,
+          "recall": 0.8681376411872865,
+          "f1-score": 0.7515633882888004,
+          "support": 3807.0
+        },
+        "appliances": {
+          "precision": 0.963677536231884,
+          "recall": 0.8936581268374633,
+          "f1-score": 0.9273480061015472,
+          "support": 11905.0
+        },
+        "furniture": {
+          "precision": 0.9123419101613607,
+          "recall": 0.8550991211935418,
+          "f1-score": 0.882793543622745,
+          "support": 4893.0
+        },
+        "stationery": {
+          "precision": 0.8635623575382612,
+          "recall": 0.8300469483568075,
+          "f1-score": 0.8464730290456431,
+          "support": 3195.0
+        },
+        "accuracy": 0.8743335872048743,
+        "macro avg": {
+          "precision": 0.8497547924397452,
+          "recall": 0.8666241398727434,
+          "f1-score": 0.8548232796083708,
+          "support": 26260.0
+        },
+        "weighted avg": {
+          "precision": 0.8873142992606317,
+          "recall": 0.8743335872048743,
+          "f1-score": 0.8779694786298468,
+          "support": 26260.0
+        }
+      },
+      "n_test": 26260
+    }
+  },
+  "temporal_split": {
+    "train_months": [
+      "2019-Dec",
+      "2019-Oct",
+      "2020-Jan"
+    ],
+    "test_months": [
+      "2020-Feb"
+    ],
+    "binary": {
+      "primary_xgboost": {
+        "f1": 0.2832688474616016,
+        "roc_auc": 0.9393315777228198,
+        "precision": 0.16746589369545353,
+        "recall": 0.9182185675292817,
+        "confusion_matrix": {
+          "tn": 762321,
+          "fp": 132119,
+          "fn": 2367,
+          "tp": 26576
+        },
+        "n_test": 923383,
+        "n_test_positive": 28943,
+        "average_precision": 0.4362162392565739
+      }
+    },
+    "multiclass": {
+      "primary_xgboost": {
+        "macro_f1": 0.8190595133147021,
+        "weighted_f1": 0.8438352617896174,
+        "per_class_f1": {
+          "accessories": 0.7896405919661733,
+          "apparel": 0.7312782069915092,
+          "appliances": 0.8898281891439866,
+          "furniture": 0.8415393322014714,
+          "stationery": 0.8430112462703695
+        },
+        "confusion_matrix": {
+          "labels": [
+            "accessories",
+            "apparel",
+            "appliances",
+            "furniture",
+            "stationery"
+          ],
+          "matrix": [
+            [
+              2241,
+              159,
+              69,
+              43,
+              32
+            ],
+            [
+              278,
+              4780,
+              265,
+              176,
+              339
+            ],
+            [
+              464,
+              1277,
+              14631,
+              1105,
+              226
+            ],
+            [
+              90,
+              507,
+              168,
+              5948,
+              108
+            ],
+            [
+              59,
+              512,
+              49,
+              43,
+              3673
+            ]
+          ]
+        },
+        "classification_report": {
+          "accessories": {
+            "precision": 0.7155172413793104,
+            "recall": 0.8808962264150944,
+            "f1-score": 0.7896405919661733,
+            "support": 2544.0
+          },
+          "apparel": {
+            "precision": 0.6606772633033863,
+            "recall": 0.8187735525865022,
+            "f1-score": 0.7312782069915092,
+            "support": 5838.0
+          },
+          "appliances": {
+            "precision": 0.9637070214727967,
+            "recall": 0.8264700898152856,
+            "f1-score": 0.8898281891439866,
+            "support": 17703.0
+          },
+          "furniture": {
+            "precision": 0.8131237183868762,
+            "recall": 0.8720129013341152,
+            "f1-score": 0.8415393322014714,
+            "support": 6821.0
+          },
+          "stationery": {
+            "precision": 0.8389675650982183,
+            "recall": 0.8470940959409594,
+            "f1-score": 0.8430112462703695,
+            "support": 4336.0
+          },
+          "accuracy": 0.8397239675635035,
+          "macro avg": {
+            "precision": 0.7983985619281176,
+            "recall": 0.8490493732183915,
+            "f1-score": 0.8190595133147021,
+            "support": 37242.0
+          },
+          "weighted avg": {
+            "precision": 0.8571477195572152,
+            "recall": 0.8397239675635035,
+            "f1-score": 0.8438352617896174,
+            "support": 37242.0
+          }
+        },
+        "n_test": 37242
+      },
+      "labels": [
+        "accessories",
+        "apparel",
+        "appliances",
+        "furniture",
+        "stationery"
+      ]
+    }
+  }
+}

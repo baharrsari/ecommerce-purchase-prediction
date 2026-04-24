@@ -1,0 +1,27 @@
+# Data (download from Kaggle — see README)
+data/raw/
+data/processed/
+
+# Trained models (regenerate with scripts/run_phase3.py, run_phase4.py)
+models/*.pkl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Claude Code workspace metadata
+.claude/
+
+# Transient coordination notes
+paper_duzeltmeler.md

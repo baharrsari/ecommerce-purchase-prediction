@@ -1,4 +1,4 @@
-"""Run Phase 1 end-to-end: raw CSVs -> session parquet files."""
+""" ham CSV dosyaları -> session parquet dosyaları."""
 from __future__ import annotations
 
 import time

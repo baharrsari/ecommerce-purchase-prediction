@@ -1,4 +1,4 @@
-"""Train and evaluate the multi-class category classifier."""
+"""Multi-class kategori sınıflandırıcısını eğit ve değerlendir.."""
 from __future__ import annotations
 
 import time

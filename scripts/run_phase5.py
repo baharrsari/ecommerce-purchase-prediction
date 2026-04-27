@@ -1,4 +1,4 @@
-"""Generate Phase 5 evaluation plots for both models."""
+"""Her iki model için Aşama 5 değerlendirme grafiklerini oluştur."""
 from __future__ import annotations
 
 import time

@@ -1,4 +1,4 @@
-"""Train and evaluate the binary purchase classifier."""
+"""Binary satın alma sınıflandırıcısını eğit ve değerlendir."""
 from __future__ import annotations
 
 import time

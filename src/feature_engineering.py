@@ -1,20 +1,17 @@
-"""Session-level feature derivation.
+"""
+Oturum davranışlarını daha iyi yakalamak için iki oran özellik ekleniyor ve özel durumlarda veri bozulmadan anlamlı 
+şekilde 0 veya uygun değerlerle temsil ediliyor.
 
-The raw aggregates produced in :mod:`preprocessing` already cover 12 of the 14
-features listed in ``CLAUDE.md``. This module adds the two ratio features and
-handles NaNs that arise when a session has only a single event (``price_std``)
-or missing prices.
+cart_to_view_ratio — n_cart / n_view
+Bir oturumda hiç görüntüleme yoksa 0 olarak kabul edilir. Çünkü hiç gezinme olmaması,
+sepete ekleme dönüşüm sinyali olmadığını ifade eder ve nötr (tarafsız) bir davranış olarak 0 ile temsil edilir.
 
-Ratio semantics:
 
-* ``cart_to_view_ratio`` — ``n_cart / n_view``. A session with zero views is
-  treated as 0: no browsing means the ratio is undefined, and 0 encodes
-  "no view-to-cart conversion signal" which is the behaviorally neutral
-  assumption.
-* ``remove_to_cart_ratio`` — ``n_remove / max(n_cart, 1)``. Using ``max(·, 1)``
-  as the denominator means a session with no cart activity and no removals
-  gets 0, while a session with removals but no carts (rare) collapses to
-  ``n_remove`` — still monotonic in hesitation signal.
+remove_to_cart_ratio — n_remove / max(n_cart, 1)
+Paydada max(·, 1) kullanılır. Bu sayede hiç sepete ekleme ve hiç çıkarma olmayan oturumlar 0 olur.
+Sepete ekleme olmadan çıkarma olması (nadir bir durum) ise doğrudan n_remove değerine indirgenir ve yine “kararsızlık/tereddüt”
+sinyali açısından monoton (artış yönlü) kalır.
+
 """
 from __future__ import annotations
 
@@ -40,12 +37,11 @@ FEATURE_COLS: list[str] = [
 
 
 def add_features(sessions: pd.DataFrame) -> pd.DataFrame:
-    """Return a copy of ``sessions`` augmented with derived features.
+    """sessions verisinin bir kopyasını döndürür ve buna türetilmiş (derived) özellikler ekler.
 
-    The input is expected to be the output of
-    :func:`preprocessing.aggregate_sessions` (or its cross-month merged
-    equivalent). Non-feature columns (``user_session``, ``user_id``,
-    ``main_cat``, ``purchased``) are preserved.
+Girdi, aggregate_sessions (veya aylar arası birleştirilmiş hali) çıktısıdır
+user_session, user_id, main_cat, purchased sütunları aynen korunur
+Diğer veriler bozulmadan sadece yeni feature’lar eklenir
     """
     df = sessions.copy()
 
@@ -76,5 +72,5 @@ def add_features(sessions: pd.DataFrame) -> pd.DataFrame:
 
 
 def select_features(sessions: pd.DataFrame) -> pd.DataFrame:
-    """Return only the 14 modeling feature columns in canonical order."""
+    """Sadece modelde kullanılacak 14 özellik sütununu alır ve bunları standart (önceden belirlenmiş) sırada döndürür."""
     return sessions[FEATURE_COLS]

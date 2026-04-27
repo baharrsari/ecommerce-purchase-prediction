@@ -1,15 +1,12 @@
-"""Phase 5 — evaluation plots.
+"""Aşama 5 — değerlendirme grafikleri.”
 
-Generates publication-ready figures for the IEEE report:
 
-* Binary model: ROC curve, Precision-Recall curve, confusion-matrix heatmap,
-  XGBoost feature importance.
-* Multi-class model: raw and row-normalized confusion-matrix heatmaps,
-  XGBoost feature importance.
+İkili model (binary): ROC eğrisi, Precision-Recall eğrisi, karmaşıklık matrisi (confusion matrix) ısı haritası, XGBoost özellik önemleri
+Çok sınıflı model (multi-class): ham ve satır bazlı normalize edilmiş karmaşıklık matrisi ısı haritaları, XGBoost özellik önemleri
 
-Trained models are reloaded from disk and evaluated on the same test split
-used during training (same ``random_state=42``, same stratification), so the
-figures stay consistent with ``results/metrics.json``.
+Eğitilmiş modeller diskten yeniden yüklenir ve eğitim sırasında kullanılan aynı test veri bölmesi üzerinde değerlendirilir (aynı random_state=42, aynı stratification). Böylece üretilen grafikler results/metrics.json ile tutarlı olur.
+
+Kısaca: Modelleri tekrar yükleyip aynı test verisiyle değerlendiriyor ve grafikler üretiyor.
 """
 from __future__ import annotations
 

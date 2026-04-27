@@ -1,13 +1,13 @@
-"""Comprehensive verification of the Phase 1-4 pipeline.
+"""Phase 1–4 pipeline’ının kapsamlı doğrulaması
 
-Five independent checks, each prints its own PASS/FAIL lines:
+Her biri kendi PASS/FAIL çıktısını veren beş bağımsız kontrol:
 
-1. Target leakage scan  — features cannot deterministically predict target.
-2. Sanity checks        — row counts, rates, invariants match CLAUDE.md.
-3. Spot check (n=5)     — manually re-aggregate random sessions from raw CSVs
-                          and compare to stored parquet values.
-4. 5-fold CV stability  — stratified folds for both binary and multi-class.
-5. Edge cases           — pure-purchase sessions, NaN handling, etc.
+1. Target leakage taraması — feature’ların target’ı deterministik şekilde tahmin edememesi gerekir.  
+2. Sanity kontrolleri — satır sayıları, oranlar ve temel invariant’lar tutarlı olmalıdır.  
+3. Spot check (n=5) — rastgele seçilen oturumlar ham CSV’lerden manuel olarak yeniden agregate edilir 
+    ve parquet çıktılarıyla karşılaştırılır.  
+4. 5-fold CV stabilitesi — hem binary hem de multi-class için stratified fold’lar üzerinde tutarlılık kontrol edilir.  
+5. Edge case kontrolleri — sadece purchase içeren oturumlar, NaN handling gibi özel durumlar test edilir.
 """
 from __future__ import annotations
 

@@ -1,8 +1,7 @@
-"""Assign each user_session to its earliest month.
+"""Her kullanıcı oturumunu (user_session) ilk başladığı aya koyuyoruz.
+Eğer bir oturum iki aya taşarsa (mesela 31 Aralık’tan 1 Ocak’a sarkarsa), onu başladığı yani daha erken olan aya sayıyoruz.
 
-Raw CSVs are scanned column-by-column (only ``user_session``) so memory cost
-is modest. A session appearing in two months (e.g. Dec 31 -> Jan 1) is
-assigned to the earlier month, which is what we want for temporal validation.
+Bunu yaparken de sadece user_session sütununa bakıldığı için sistem fazla bellek kullanmıyor.
 """
 from __future__ import annotations
 

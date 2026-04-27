@@ -1,27 +1,47 @@
-# Data (download from Kaggle — see README)
-data/raw/
-data/processed/
-
-# Trained models (regenerate with scripts/run_phase3.py, run_phase4.py)
-models/*.pkl
+# Veri ve model dosyaları (büyük, repoya dahil edilmez)
+data/
+models/
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Sanal ortamlar
+venv/
+env/
+.venv/
+ENV/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# OS / editor noise
-.DS_Store
-Thumbs.db
+# IDE
 .vscode/
 .idea/
 *.swp
+*.swo
 
-# Claude Code workspace metadata
+# Claude Code
 .claude/
+CLAUDE.md
 
-# Transient coordination notes
-paper_duzeltmeler.md
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Loglar ve geçici dosyalar
+*.log
+*.tmp
+.cache/
+
+# Çevre değişkenleri
+.env
+.env.local

@@ -1,12 +1,13 @@
-"""Memory-efficient loading of the raw monthly e-commerce CSV files.
+"""Ham aylık e-ticaret CSV dosyalarının bellek açısından verimli şekilde yüklenmesi.”
 
-The raw dataset contains ~16M events across four months. To stay within a
-reasonable memory footprint we:
+Ham veri seti dört ayda yaklaşık 16 milyon olay içerir. Makul bir bellek kullanımı sağlamak için:
 
-* read only the columns needed for modeling,
-* use ``category`` dtype for low-cardinality string columns,
-* parse ``event_time`` eagerly so downstream code can rely on datetime ops,
-* expose an iterator so a caller can process one month at a time.
+Modelleme için gerekli olan sütunları okuruz.
+Az sayıda farklı değere sahip metin sütunları için category veri tipini kullanırız.
+event_time alanını baştan tarih formatına çeviririz, böylece sonraki işlemler bunu kolayca kullanabilir.
+Veriyi tek seferde değil, ay ay işleyebilmek için bir iterator (yineleyici) sunarız.
+
+Kısaca: Büyük veriyi belleği yormadan, parça parça ve verimli şekilde yüklüyoruz.
 """
 from __future__ import annotations
 
@@ -47,14 +48,10 @@ MONTHLY_FILES = [
 
 
 def load_month(path: Path, nrows: int | None = None) -> pd.DataFrame:
-    """Load a single monthly CSV with memory-efficient dtypes.
-
-    Args:
-        path: Path to a monthly CSV file in ``data/raw/``.
-        nrows: Optional row limit for smoke tests.
-
-    Returns:
-        DataFrame with ``event_time`` parsed as datetime.
+    """Tek bir aylık CSV dosyasını bellek dostu (optimize edilmiş veri tipleriyle) yükler.
+        Gerekirse sadece ilk n satırı yükleyerek hızlı test yapılabilir (nrows)
+        event_time sütunu otomatik olarak datetime formatına çevrilir
+        Sonuç olarak temizlenmiş bir DataFrame döner
     """
     df = pd.read_csv(
         path,
@@ -67,14 +64,12 @@ def load_month(path: Path, nrows: int | None = None) -> pd.DataFrame:
 
 
 def iter_months(raw_dir: Path, nrows: int | None = None) -> Iterator[tuple[str, pd.DataFrame]]:
-    """Yield ``(month_name, dataframe)`` pairs for each monthly CSV.
-
-    Processes one file at a time so the caller can aggregate to session level
-    and discard the raw events before loading the next month.
-
-    Args:
-        raw_dir: Directory holding the monthly CSVs.
-        nrows: Optional row limit per file for smoke tests.
+    """Her aylık CSV dosyasını tek tek işler ve her biri için:
+    (ay_adı, veri_seti) şeklinde çıktı üretir.
+    Dosyaları teker teker yükler (bellek tasarrufu için)
+    Her ay işlendiğinde sonuç döndürülür, sonra o veri atılır
+    Böylece bir sonraki ay yüklenebilir
+    nrows varsa sadece ilk N satır alınır (test amaçlı)
     """
     for fname in MONTHLY_FILES:
         fpath = raw_dir / fname
@@ -84,11 +79,10 @@ def iter_months(raw_dir: Path, nrows: int | None = None) -> Iterator[tuple[str, 
 
 
 def load_all(raw_dir: Path, nrows: int | None = None) -> pd.DataFrame:
-    """Load and concatenate every monthly CSV.
-
-    Only suitable for exploratory analysis or smoke tests: the full 4-month
-    concat is memory-heavy. For the modeling pipeline, use :func:`iter_months`
-    and aggregate per month.
+    """Tüm aylık CSV dosyalarını yükleyip tek bir büyük DataFrame halinde birleştirir.
+    Sadece keşif analizi veya küçük testler için uygundur (bellek tüketimi yüksek)
+    Modelleme için önerilmez
+    Modelleme aşamasında bunun yerine iter_months kullanılıp her ay ayrı ayrı işlenmelidir
     """
     frames = [df for _, df in iter_months(raw_dir, nrows=nrows)]
     return pd.concat(frames, ignore_index=True, copy=False)

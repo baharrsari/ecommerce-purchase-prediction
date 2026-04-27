@@ -1,19 +1,22 @@
-"""Multi-class category classifier.
+"""Multi-class kategori sınıflandırıcısı.”
+Oturumun ana kategorisini (main_cat) tahmin eder:
+{aksesuarlar, giyim, elektronik cihazlar, mobilya, kırtasiye}
+Model, 14 oturum seviyesindeki özellik üzerinden çalışır ve yalnızca kategorisi geri
+elde edilebilen oturumları içeren sessions_cat.parquet veri setini kullanır (yaklaşık 131 bin satır).
+Sınıf dengelenmesi (class balancing):
 
-Predicts the session's ``main_cat`` ∈ {accessories, apparel, appliances,
-furniture, stationery} from the 14 session-level features. Operates on
-``sessions_cat.parquet`` — the subset of sessions with a recoverable category
-(~131K rows).
 
-Class balancing:
+Baseline model (Lojistik Regresyon, multinomial): class_weight='balanced' kullanır.
 
-* **Baseline** (Logistic Regression, multinomial) uses ``class_weight='balanced'``.
-* **Primary** (XGBoost ``multi:softprob``) has no native ``class_weight`` in
-  multi-class mode, so we pass ``sample_weight`` computed by sklearn's
-  ``compute_sample_weight('balanced', y)`` — this is the standard equivalent.
+Ana model (XGBoost, multi:softprob): çok sınıflı modda doğrudan class_weight desteklemediği için, bunun yerine
+sklearn’in compute_sample_weight('balanced', y) fonksiyonuyla hesaplanan sample weight kullanılır. Bu, standart ve eşdeğer yaklaşımdır.
 
-Metrics follow ``CLAUDE.md``: Macro F1 (primary), Weighted F1, and a
-labels-sorted 5×5 confusion matrix.
+Ana metrik: Macro F1
+Ek metrik: Weighted F1
+
+Ayrıca etiket sıralı 5×5 confusion matrix (karmaşıklık matrisi) sunulur.
+
+
 """
 from __future__ import annotations
 
@@ -110,15 +113,14 @@ def evaluate(
     labels: list[str],
     encoded: bool = False,
 ) -> dict[str, Any]:
-    """Compute macro/weighted F1 plus per-class report and confusion matrix.
+    """Model için F1 skorlarını, sınıf bazlı raporu ve karışıklık matrisini (confusion matrix) hesaplar.
+        Hem macro hem weighted F1 hesaplanır
+        Her sınıf için detaylı performans raporu çıkarılır
+        Tahminlerin nerede karıştığını görmek için confusion matrix oluşturulur
 
-    Args:
-        labels: Class names in the canonical reporting order (used for cm and
-            classification_report). For the encoded XGBoost case these must
-            match the LabelEncoder's ``classes_``.
-        encoded: If True, treat ``model`` as producing integer predictions and
-            ``y_test`` as an integer array (XGBoost path). Otherwise treat both
-            as string labels (LogReg pipeline path).
+        Not:
+        encoded=True ise: model ve veriler sayısal (integer) etiketlerle çalışır (örneğin XGBoost)
+        encoded=False ise: string etiketlerle çalışır (örneğin Logistic Regression)
     """
     pred = model.predict(X_test)
     if encoded:

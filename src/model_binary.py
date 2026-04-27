@@ -1,12 +1,19 @@
-"""Binary purchase classifier.
+"""Binary satın alma sınıflandırıcısı.”
 
-Trains a Logistic Regression baseline and an XGBoost primary model on the
-session-level dataset. Both handle the ~3.4% positive-class imbalance: the
-baseline via ``class_weight='balanced'`` and XGBoost via ``scale_pos_weight``.
+Oturum seviyesindeki veri seti üzerinde bir lojistik regresyon (baseline) ve bir
+XGBoost (ana model) eğitilir. Veri setinde yaklaşık %3.4 pozitif sınıf dengesizliği
+vardır (satın alma yapanlar azdır). Bu dengesizlik:
 
-Metrics reported follow ``CLAUDE.md``: F1 and ROC-AUC as primary, with
-precision/recall/confusion matrix as supporting. Accuracy is deliberately
-omitted — a trivial "always 0" predictor would score ~96.6%.
+Baseline modelde class_weight='balanced' ile,
+XGBoost modelinde ise scale_pos_weight ile
+
+dengelenir.
+
+Ana metrikler olarak F1 skoru ve ROC-AUC kullanılır;
+ek olarak precision (kesinlik), recall (duyarlılık) ve confusion matrix raporlanır.
+
+Accuracy (doğruluk) özellikle kullanılmaz, çünkü veri dengesiz olduğu için “her zaman 0 tahmin eden” basit bir
+model bile yaklaşık %96.6 doğruluk elde edebilir ve bu yanıltıcı olur.
 """
 from __future__ import annotations
 
@@ -45,7 +52,8 @@ class BinaryResult:
 
 
 def load_dataset(path: Path) -> tuple[pd.DataFrame, pd.Series]:
-    """Load features and binary target from the Phase-2 parquet."""
+    """Phase-2 parquet dosyasından özellikleri (features) ve ikili hedef değişkeni (target) yükler.
+"""
     df = pd.read_parquet(path)
     X = df[FEATURE_COLS].astype("float32")
     y = df["purchased"].astype("int8")
@@ -55,21 +63,22 @@ def load_dataset(path: Path) -> tuple[pd.DataFrame, pd.Series]:
 def split(
     X: pd.DataFrame, y: pd.Series
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    """Stratified 80/20 split on the target."""
+    """Hedef değişkeni koruyarak veriyi %80 eğitim / %20 test olacak şekilde böler."""
     return train_test_split(
         X, y, test_size=TEST_SIZE, stratify=y, random_state=RANDOM_STATE
     )
 
 
 def train_baseline(X_train: pd.DataFrame, y_train: pd.Series) -> Pipeline:
-    """Logistic Regression with standardized inputs and balanced class weights."""
+    """Veriler ölçeklendirilerek (standardize edilerek) Logistic Regression modeli eğitilir ve sınıflar
+        dengesizse bunu dengelemek için class weight (balanced) kullanılır."""
     pipe = Pipeline(
         [
             ("scale", StandardScaler()),
             (
                 "clf",
                 LogisticRegression(
-                    class_weight="balanced",
+                    class_weight="balanced", #<---
                     max_iter=1000,
                     n_jobs=-1,
                     random_state=RANDOM_STATE,
@@ -82,10 +91,11 @@ def train_baseline(X_train: pd.DataFrame, y_train: pd.Series) -> Pipeline:
 
 
 def train_primary(X_train: pd.DataFrame, y_train: pd.Series) -> XGBClassifier:
-    """XGBoost with ``scale_pos_weight`` set from the train-set ratio."""
+    """XGBoost modeli eğitilir ve sınıflar dengesizse bunu düzeltmek için pozitif sınıfa ağırlık 
+        (scale_pos_weight) eğitim verisindeki oranlara göre ayarlanır."""
     n_neg = int((y_train == 0).sum())
     n_pos = int((y_train == 1).sum())
-    spw = n_neg / max(n_pos, 1)
+    spw = n_neg / max(n_pos, 1) #29
 
     clf = XGBClassifier(
         n_estimators=400,
@@ -93,7 +103,7 @@ def train_primary(X_train: pd.DataFrame, y_train: pd.Series) -> XGBClassifier:
         learning_rate=0.1,
         subsample=0.9,
         colsample_bytree=0.9,
-        scale_pos_weight=spw,
+        scale_pos_weight=spw, #<---
         objective="binary:logistic",
         eval_metric="auc",
         tree_method="hist",
@@ -105,7 +115,7 @@ def train_primary(X_train: pd.DataFrame, y_train: pd.Series) -> XGBClassifier:
 
 
 def evaluate(model: Any, X_test: pd.DataFrame, y_test: pd.Series) -> dict[str, Any]:
-    """Compute the Phase-3 metric suite at the default 0.5 threshold."""
+    """Phase-3 performans metrikleri, 0.5 eşik değeri (threshold) kullanılarak hesaplanır."""
     proba = model.predict_proba(X_test)[:, 1]
     pred = (proba >= 0.5).astype(int)
 
@@ -128,11 +138,16 @@ def run(
     model_path: Path,
     metrics_path: Path,
 ) -> dict[str, dict[str, Any]]:
-    """End-to-end Phase 3: load -> split -> train both -> evaluate -> persist.
+    """Phase 3 sürecini baştan sona çalıştırır:
 
-    Both models are trained, but only the primary (XGBoost) is saved to
-    ``model_path`` as the deployment artifact. The baseline is compared
-    side-by-side in the metrics JSON.
+Veriyi yükler
+Eğitim/test olarak böler
+Hem Logistic Regression hem XGBoost modellerini eğitir
+Performanslarını değerlendirir ve karşılaştırır
+Sonuçları kaydeder
+
+Ama sadece ana model olan XGBoost kaydedilir (deployment için).
+Logistic Regression ise sadece kıyaslama amacıyla kullanılır.
     """
     X, y = load_dataset(data_path)
     X_train, X_test, y_train, y_test = split(X, y)
@@ -165,7 +180,8 @@ def run(
 
 
 def _merge_metrics_json(path: Path, new_metrics: dict[str, Any]) -> None:
-    """Persist metrics, merging with any existing top-level keys."""
+    """Hesaplanan metrikler dosyaya kaydedilir ve eğer dosyada zaten başka bilgiler varsa,
+        üst seviye anahtarlarla birleştirilir (üzerine yazmadan eklenir)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     existing: dict[str, Any] = {}
     if path.exists():

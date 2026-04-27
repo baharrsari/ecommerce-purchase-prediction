@@ -1,4 +1,6 @@
-"""Load Phase 1 parquets, add derived features, save final modeling datasets."""
+"""Aşama 1 (Phase 1) parquet dosyalarını yükle, türetilmiş özellikleri ekle sonra da modeli 
+eğitmek için kullanılacak son veri setlerini kaydet."""
+
 from __future__ import annotations
 
 import time

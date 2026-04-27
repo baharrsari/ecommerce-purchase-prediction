@@ -1,15 +1,15 @@
-"""Event-level → session-level aggregation.
+"""Olay (event) seviyesinden oturum (session) seviyesine toplulaştırma.”
 
-Two datasets are produced:
+İki veri seti üretilir:
 
-* ``sessions_all`` — one row per ``user_session`` with the binary ``purchased``
-  target. Used by Model 1.
-* ``sessions_cat`` — the subset of ``sessions_all`` where a ``main_cat`` could
-  be recovered via the category-id → category-code mapping. Used by Model 2.
+sessions_all — Her user_session için tek satır içerir ve ikili (binary) purchased hedefini barındırır. Model 1 için kullanılır.
+sessions_cat — sessions_all içinden, kategori-id → kategori-kodu eşlemesi ile main_cat değeri geri çıkarılabilen oturumların alt
+kümesidir. Model 2 için kullanılır.
 
-Category recovery is the critical step: raw ``category_code`` is ~98.3% NULL
-while ``category_id`` is almost always present, so we forward-fill the code
-from any row where both were observed.
+Kategori geri kazanımı (category recovery) kritik bir adımdır:
+Ham veride category_code alanı yaklaşık %98.3 oranında boş (NULL) iken, category_id neredeyse her zaman mevcuttur. Bu yüzden,
+her ikisinin de birlikte gözlemlendiği satırlardan category_code bilgisi ileri doldurma (forward-fill) yöntemiyle diğer eksik
+satırlara aktarılır.
 """
 from __future__ import annotations
 
@@ -25,11 +25,8 @@ DROP_CATEGORIES = {"sport"}
 
 
 def build_category_map(df: pd.DataFrame) -> dict[int, str]:
-    """Construct a ``category_id -> category_code`` mapping.
-
-    A small number of ``category_id`` values appear with more than one
-    ``category_code``; we keep the first observed code, which is stable in
-    practice for this dataset.
+    """Her category_id için tek bir category_code seçiliyor.
+        Birden fazla varsa, ilk görülen kullanılıyor.
     """
     non_null = df.dropna(subset=["category_code"])[["category_id", "category_code"]]
     non_null = non_null.drop_duplicates(subset=["category_id"])
@@ -37,7 +34,8 @@ def build_category_map(df: pd.DataFrame) -> dict[int, str]:
 
 
 def fill_main_cat(df: pd.DataFrame, cat_map: dict[int, str]) -> pd.DataFrame:
-    """Fill ``main_cat`` on an event-level frame using the id→code map."""
+    """Her olay (event) satırında main_cat alanını, id→code eşlemesini kullanarak doldur.
+"""
     filled = df["category_id"].map(cat_map)
     df = df.assign(
         category_filled=filled,
@@ -47,15 +45,20 @@ def fill_main_cat(df: pd.DataFrame, cat_map: dict[int, str]) -> pd.DataFrame:
 
 
 def aggregate_sessions(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate event rows to one row per ``user_session``.
+    """Her **user_session** için event satırlarını tek bir satırda topla.
 
-    Features are computed over **non-purchase** events only. Including purchase
-    events in the feature aggregations leaks the target: ``n_events`` would
-    strictly exceed ``n_view + n_cart + n_remove`` for purchased sessions,
-    price/brand/product stats would absorb purchase-event values, and
-    ``session_duration_sec`` would stretch to ``ts_max`` of the purchase. The
-    target ``purchased`` and session-level ``main_cat`` are still computed
-    over all events.
+Özellikler (**features**) yalnızca **satın alma (purchase) olmayan event’ler** üzerinden hesaplanır.
+Çünkü purchase event’leri dahil etmek hedef bilgiyi sızdırır (data leakage):
+
+* **n_events**, satın alınan oturumlarda **n_view + n_cart + n_remove** toplamından büyük olur
+* Fiyat/marka/ürün istatistikleri purchase değerlerini de içerir
+* **session_duration_sec**, satın alma zamanına kadar uzar
+
+Ama şu ikisi **tüm event’ler** kullanılarak hesaplanır:
+
+* **purchased** (hedef değişken)
+* Oturum seviyesindeki **main_cat**
+
     """
     df = df.assign(
         is_view=(df["event_type"] == "view").astype("int32"),
@@ -129,17 +132,15 @@ def process_month(df: pd.DataFrame, cat_map: dict[int, str]) -> pd.DataFrame:
 
 
 def build_sessions(raw_dir: Path, nrows: int | None = None) -> pd.DataFrame:
-    """Build the full session-level dataset across every monthly file.
+    """Kısaca:
 
-    Strategy:
-      1. First pass: scan each month to collect ``category_id -> category_code``
-         pairs so the map is complete before aggregation.
-      2. Second pass: aggregate each month to sessions using the global map,
-         then concatenate the (much smaller) session frames.
+Tüm aylık verilerden **oturum (session) bazlı tek bir veri seti oluşturuluyor**.
 
-    A session that spans a month boundary is rare given the dataset's session
-    granularity, but if it occurs the two halves are merged in
-    :func:`_merge_cross_month_sessions`.
+* Önce tüm aylardan **id → kod eşleşmeleri** toplanıyor
+* Sonra her ay **oturum bazına indiriliyor ve birleştiriliyor**
+* Eğer bir oturum iki aya bölünmüşse, **sonradan birleştiriliyor**
+
+
     """
     cat_map: dict[int, str] = {}
     for fname in MONTHLY_FILES:
@@ -164,10 +165,14 @@ def build_sessions(raw_dir: Path, nrows: int | None = None) -> pd.DataFrame:
 
 
 def _merge_cross_month_sessions(sessions: pd.DataFrame) -> pd.DataFrame:
-    """Collapse duplicate ``user_session`` rows that fell across months.
+    """Kısaca:
 
-    Counts are summed, price stats recomputed conservatively, and the session
-    is marked purchased if either fragment was.
+Aylara bölünmüş aynı **user_session** kayıtları **tek satırda birleştirilir**.
+
+* Sayılar (count) **toplanır**
+* Fiyat istatistikleri **yeniden ve temkinli şekilde hesaplanır**
+* Parçalardan biri bile satın aldıysa, oturum **“purchased” olarak işaretlenir**
+
     """
     dup_mask = sessions["user_session"].duplicated(keep=False)
     if not dup_mask.any():

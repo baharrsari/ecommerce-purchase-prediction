@@ -162,4 +162,4 @@ jupyter
 
 ## 👤 Author
 
-Bahar Sarımehmetoğlu · [sarimehmetoglubahar@gmail.com](mailto:sarimehmetoglubahar@gmail.com)
+Bahar Sarımehmetoğlu 
